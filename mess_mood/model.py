@@ -8,6 +8,7 @@ and pick the label with the higher score. P(word | label) uses add-one
 smoothing, so a word never seen with a label gets a small probability
 instead of zero. Words the model has never seen at all are ignored.
 """
+import json
 import math
 from collections import Counter
 
@@ -54,3 +55,25 @@ class NaiveBayes:
             return self.word_prob(word, label) / other
 
         return sorted(self.vocab, key=ratio, reverse=True)[:n]
+
+    def save(self, path):
+        data = {
+            "label_counts": dict(self.label_counts),
+            "word_counts": {label: dict(counts) for label, counts in self.word_counts.items()},
+            "vocab": list(self.vocab),
+            "totals": self.totals
+        }
+        with open(path, "w") as f:
+            json.dump(data, f)
+
+    @classmethod
+    def load(cls, path):
+        with open(path, "r") as f:
+            data = json.load(f)
+        
+        model = cls()
+        model.label_counts = Counter(data["label_counts"])
+        model.word_counts = {label: Counter(counts) for label, counts in data["word_counts"].items()}
+        model.vocab = set(data["vocab"])
+        model.totals = data["totals"]
+        return model

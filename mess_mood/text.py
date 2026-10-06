@@ -22,4 +22,6 @@ def tokenize(text):
             continue
         tokens.append(f"not_{word}" if negate else word)
         negate = False
-    return tokens
+    
+    bigrams = [f"{tokens[i]}_{tokens[i+1]}" for i in range(len(tokens) - 1)]
+    return tokens + bigrams
